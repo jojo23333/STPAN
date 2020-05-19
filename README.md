@@ -31,4 +31,12 @@ DATA.PATH_TO_TEST_SET: "path to your prepared test set"
 TEST.CHECKPOINT_FILE_PATH: "path to downloaded checkpoint"
 TEST.OUTPUT_DIR: "path to your output dir"
 
+### Citation
+If you find this repo helpful in your research, please cite our paper.
 
+@article{stpan,
+  title={Learning spatial and spatio-temporal pixel aggregations for image and video denoising},
+  author={Xu, Xiangyu and Li, Muchen and Sun, Wenxiu and Yang, Ming-Hsuan},
+  journal={IEEE Transactions on Image Processing},
+  year={2020}
+}
