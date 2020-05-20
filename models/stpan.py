@@ -98,6 +98,8 @@ class STPAN(nn.Module):
         self.frame_size = FRAME_SIZE
         self.color_ch = COLOR_CH
         self.anneal_alpha = cfg.STPAN.ANNEAL_ALPHA
+        self.noise_type = cfg.NOISE_TYPE
+
         self.num_ch = 128
         self.ch_flow = KERNEL_K * KERNEL_K * KERNEL_T
         self.conv_first_1 = make_conv_blocks(3, 64, 3)
@@ -122,10 +124,15 @@ class STPAN(nn.Module):
             nn.ReLU(),
             nn.Conv2d(64, self.ch_flow, 3, 1, 1),
         ])
+        
+        if self.noise_type == 'gaussian'
+            srgb_transfer_func = sRGBforward
+        else:
+            srgb_transfer_func = lambda x: x
 
-    def forward(self, x, gt, gs):
-        B, T, C, H, W = x.size()
-        fea = self.conv_first_1(x.view(B, -1, H, W))
+    def forward(self, inputs, gt, gs):
+        B, T, C, H, W = inputs.size()
+        fea = self.conv_first_1(inputs.view(B, -1, H, W))
         fea = self.unet_subset(fea)
 
         flow_weights_fea = fea[:, :128, ...]
@@ -143,19 +150,26 @@ class STPAN(nn.Module):
                                                x.view(B, -1, H, W)]), dim=1)
         weights = weights.view(B, self.ch_flow, 1, H, W)
         out = weights * sample_points
+        pred = out.sum(dim=1)
 
         if self.training:
-            k = self.kernel_k * self.kernel_k
+            K = self.kernel_k * self.kernel_k
             annealing_loss = 0
             annealing_rate = torch.pow(self.anneal_alpha, gs) * 100
             for i in range(self.kernel_t):
-                part_sum = out[:, i*k:i*k+k, ...].sum(dim=1)
-                annealing_loss += F.mse_loss(sRGBforward(part_sum), gt)
-            base_loss = F.mse_loss(sRGBforward(out.sum(dim=1)), gt)
-            return {"mse_loss": base_loss, "annealing_loss": annealing_loss * annealing_rate}
-        else:
-            return out.sum(dim=1)
+                part_sum = out[:, i*K:i*K+K, ...].sum(dim=1)
+                annealing_loss += F.mse_loss(srgb_transfer_func(part_sum), gt)
+            mse = F.mse_loss(srgb_transfer_func(pred), gt)
+            losses = {"mse_loss": mse, "annealing_loss": annealing_loss * annealing_rate}
+            
+            psnr =  20 * torch.log10(1. / torch.sqrt(mse))
+            base_mse = torch.mean((srgb_transfer_func(inputs[:, self.frame_size // 2, ...]) - gt) ** 2)
+            base_psnr = 20 * torch.log10(1. / torch.sqrt(base_mse))
+            training_info = {'annealing rate': annealing_rate, 'psnr': psnr, 'base psnr': base_psnr}
 
+            return losses, training_info
+        else:
+            return pred
 
 
 

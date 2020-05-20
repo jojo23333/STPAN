@@ -141,13 +141,6 @@ _C.DATA.PATH_TO_TRAINING_SET = "/Disk2/limuchen/NTIRE2020/train"
 
 _C.DATA.PATH_TO_TEST_SET = "/Disk2/limuchen/NTIRE2020/val"
 
-_C.DATA.PATH_TO_SOURCE_LMDB = "/Disk2/limuchen/NTIRE2020/train/source_lmdb.lmdb"
-
-_C.DATA.PATH_TO_TARGET_LMDB = "/Disk2/limuchen/NTIRE2020/train/target_lmdb.lmdb"
-
-# use lmdb datset
-_C.DATA.DATA_TYPE = ''
-
 #
 _C.DATA.DATA_SHAPE = (3, 1920, 1080)
 
@@ -219,6 +212,8 @@ _C.LOG_PERIOD = 10
 _C.DIST_BACKEND = "nccl"
 
 _C.LOG_NAME = 'log'
+
+_C.TASK = 'denoise'
 
 
 def get_cfg():

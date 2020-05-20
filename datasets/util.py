@@ -8,56 +8,6 @@ class imageCorupptedError(Exception):
     def __init__(self):
         super(imageCorupptedError, self).__init__()
 
-def get_image_subpaths(source_root, t_sample_size=5, mode='train'):
-    frame_patches = []
-    all_vids = os.listdir(source_root)
-    val_vids = ['008', '029', '034', '035']
-    train_vids = list(set(all_vids) - set(val_vids))
-    if mode == 'train':
-        vids = train_vids
-    elif mode == 'val':
-        vids = val_vids
-    elif mode == 'test':
-        vids = all_vids
-
-    for vid in vids:
-        frames = os.listdir(os.path.join(source_root, vid))
-        frames.sort()
-        padding = t_sample_size//2 
-        for i in range(padding, len(frames) - padding):
-            if mode == 'val' and i % 20 != 9:
-                continue
-            if mode == 'test' and i % 20 != 19:
-                continue
-            patch = [os.path.join(vid, frames[j]) for j in range(i-padding, i+padding+1)]
-            frame_patches.append(patch)
-    
-    return frame_patches
-
-def get_test_image_subpaths(source_root, t_sample_size=5, mode='part'):
-    frame_patches = []
-    all_vids = os.listdir(source_root)
-    all_vids.sort()
-
-    for vid in all_vids:
-        frames = os.listdir(os.path.join(source_root, vid))
-        frames.sort()
-        padding = t_sample_size//2 
-        for i in range(0, len(frames)):
-            if mode == 'part' and i % 20 != 19:
-                continue
-            patch = []
-            if padding - i > 0:
-                patch = patch + [os.path.join(vid, frames[i]) for x in range(0, padding - i)]
-            begin = max(0, i-padding)
-            end = min(len(frames), i+padding+1)
-            patch = patch + [os.path.join(vid, frames[j]) for j in range(begin, end)]
-            if padding + i + 1 - len(frames)> 0:
-                patch = patch + [os.path.join(vid, frames[i]) for x in range(0, padding + i + 1 - len(frames))]
-            frame_patches.append(patch)
-    
-    return frame_patches
-
 def augment_img(img, mode=0):
     '''Kai Zhang (github: https://github.com/cszn)
     '''

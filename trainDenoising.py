@@ -61,14 +61,7 @@ def train_epoch(train_loader, model, optimizer, train_meter, cur_epoch, cur_gs, 
             inputs = inputs.cuda(non_blocking=True)
 
         gt = gt.cuda()
-
-        losses = model(inputs, gt, gs)
-
-        mse = torch.mean((pred - gt) ** 2)
-        psnr =  20 * torch.log10(1. / torch.sqrt(mse))
-
-        base_mse = torch.mean((inputs[:, cfg.DATA.NUM_FRAMES // 2,:, :, :] - gt) ** 2)
-        base_psnr = 20 * torch.log10(1. / torch.sqrt(base_mse))
+        losses, training_infos = model(inputs, gt, gs)
 
         # check Nan Loss.
         misc.check_nan_losses(loss)
@@ -80,24 +73,17 @@ def train_epoch(train_loader, model, optimizer, train_meter, cur_epoch, cur_gs, 
         # Update the parameters.
         optimizer.step()
 
-        # Gather all the predictions across all the devices.
-        if cfg.NUM_GPUS > 1:
-            loss, psnr, base_psnr = du.all_reduce([loss, psnr, base_psnr])
-
-        # Copy the stats from GPU to CPU (sync point).
-        loss, psnr, base_psnr = loss.item(), psnr.item(), base_psnr.item()
         train_meter.iter_toc()
         # Update and log stats.
-        train_meter.update_stats(
-            loss, psnr, base_psnr, lr, inputs[0].size(0) * cfg.NUM_GPUS
-        )
+        training_infos.update(losses)
+        training_infos.update({"lr": lr})
+        # log info into meters
+        train_meter.update_stats(training_infos)
         train_meter.log_iter_stats(cur_epoch, cur_iter)
         train_meter.iter_tic()
 
         # Update global step, lr, and multigrid stages
         gs = gs + 1
-        # logger.info('tic')
-
         # if cur_iter % 100 == 99:
         #     cu.save_checkpoint_iter(cfg.OUTPUT_DIR, model, optimizer, cur_epoch, gs, cur_iter, cfg)
 
