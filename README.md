@@ -3,12 +3,12 @@ This is a official implementation of the paper *Learning spatial and spatio-temp
 The pytorch implementation is still under preparation and will be released soon. Please see tf branch for original implementation and models.
 
 ## TODOs
-- [x] Release SPAN and PAN Models
-- [] Release Test and Training Scripts
-- [] Release Datasets
-- [] Release Video Denoise models
-- [] Release Image Denoise models
-- [] 
+- [x] Release SPAN and PAN code
+- [ ] Release Test and Training Scripts
+- [ ] Release Datasets
+- [ ] Release Video Denoise models
+- [ ] Release Image Denoise models
+- [ ] 
 
 ## installation
 For environment setting up:
@@ -29,14 +29,15 @@ pip install -r requirement.txt
             ...
         -vid2
         ... -->
+## Training
 
 ## Testing
 In the yaml config file:
 
 modify:
-DATA.PATH_TO_TEST_SET: "path to your prepared test set"
-TEST.CHECKPOINT_FILE_PATH: "path to downloaded checkpoint"
-TEST.OUTPUT_DIR: "path to your output dir"
+DATA.PATH_TO_TEST_SET: "path to your prepared test set"  
+TEST.CHECKPOINT_FILE_PATH: "path to downloaded checkpoint"  
+TEST.OUTPUT_DIR: "path to your output dir"  
 
 ### Citation
 If you find this repo helpful in your research, please cite our paper.
