@@ -8,9 +8,8 @@ The pytorch implementation is still under preparation and will be released soon.
 - [ ] Release Datasets
 - [ ] Release Video Denoise models
 - [ ] Release Image Denoise models
-- [ ] 
 
-## installation
+## Installation
 For environment setting up:
 ```
 pip install -r requirement.txt
@@ -32,12 +31,12 @@ pip install -r requirement.txt
 ## Training
 
 ## Testing
-In the yaml config file:
+<!-- In the yaml config file:
 
 modify:
 DATA.PATH_TO_TEST_SET: "path to your prepared test set"  
 TEST.CHECKPOINT_FILE_PATH: "path to downloaded checkpoint"  
-TEST.OUTPUT_DIR: "path to your output dir"  
+TEST.OUTPUT_DIR: "path to your output dir"   -->
 
 ### Citation
 If you find this repo helpful in your research, please cite our paper.
