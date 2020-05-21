@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.arch.pan import rebase_flow_2d
-from models.arch.pan import spatial_sampler
+from models.arch.samplers import rebase_flow_2d
+from models.arch.samplers import spatial_sampler
 
 def unet_subset(ch, N, D=3, norm_type="none"):
     """
@@ -85,11 +85,13 @@ class UnetSubset(nn.Module):
         return l1_fea
 
 
-class SPAN(nn.Module):
+class PAN(nn.Module):
     def __init__(self, cfg):
         super(ST_PAN, self).__init__()
         KERNEL_K = 5
         COLOR_CH = 1
+        self.KERNEL_K = cfg.PAN.KERNEL_K
+        self.COLOR_CH = cfg.DENOISE.COLOR_CH
         self.num_ch = 128
         self.ch_flow = KERNEL_K * KERNEL_K 
         self.conv_first_1 = make_conv_blocks(3, 64, 3)
@@ -115,8 +117,12 @@ class SPAN(nn.Module):
             nn.Conv2d(64, self.ch_flow, 3, 1, 1),
         ])
 
-    def forward(self, x):
-        B, C, H, W = x.size()
+    def forward(self, input_dict, gs):
+        input_frame = inputs_dict["inputs"]
+        gt = inputs_dict["gt"]
+        noise_level = inputs_dict["noise_level"]
+        B, C, H, W = input_frame.size()
+
         fea = self.conv_first_1(x.view(B, -1, H, W))
         fea = self.unet_subset(fea)
 
@@ -125,8 +131,8 @@ class SPAN(nn.Module):
 
         flow_fea = F.interpolate(self.flow_recon_1(flow_fea), scale_factor=2, mode='bilinear', align_corners=False)
         flow_2d = self.flow_recon_2(torch.cat([x, flow_fea], dim=1))
-        flow_2d = flow_3d.view(B, self.ch_flow, 2, h, w)
-        flow_2d = rebase_flow_3d(flow_3d, self.kernel_s, self.kernel_t)
+        flow_2d = flow_2d.view(B, self.ch_flow, 2, h, w)
+        flow_2d = rebase_flow_2d(flow_2d, self.kernel_s, self.kernel_t)
         sample_points = spatial_sampler(x, flow_2d)
         
         weights = self.weight_recon_1(flow_weights_fea)
@@ -135,8 +141,18 @@ class SPAN(nn.Module):
                                                x.view(B, -1, H, W)]), dim=1)
         weights = weights.view(B, self.ch_flow, 1, H, W)
         out = weights * sample_points
-        out = out.sum(dim=1)
-        return out
+        pred = out.sum(dim=1)
+        if self.training:
+            mse = F.mse_loss(pred, gt)
+            losses = {"mse_loss": mse}
+            
+            psnr =  20 * torch.log10(1. / torch.sqrt(mse))
+            base_mse = torch.mean((input_frame- gt) ** 2)
+            base_psnr = 20 * torch.log10(1. / torch.sqrt(base_mse))
+            training_info = {'annealing rate': annealing_rate, 'psnr': psnr, 'base psnr': base_psnr}
+            return losses, training_info
+        else:
+            return pred
 
 
 

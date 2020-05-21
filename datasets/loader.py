@@ -8,15 +8,15 @@ from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data.sampler import RandomSampler
 
 from datasets.videoDenoiseDataset import videoDenoiseDataset
-from datasets.vimeo import get_vimeo18k_instances
+from datasets.vimeo import get_vimeo20k_instances
 
 # Supported datasets.
 _DATASET_CATALOG = { 
-    "vimeo18k_video" : videoDenoiseDataset,
+    "vimeo20k_video" : videoDenoiseDataset,
 }
 
 _DATASET_COLLECTOR_CATALOG = {
-    "vimeo18k_video" : get_vimeo18k_instances
+    "vimeo20k_video" : get_vimeo18k_instances
 }
 
 
@@ -37,7 +37,7 @@ def construct_loader(cfg, split):
         drop_last = True
         num_workers = cfg.DATA_LOADER.NUM_WORKERS
     elif split in ["val"]:
-        dataset_name = cfg.TRAIN.DATASET
+        dataset_name = cfg.VAL.DATASET
         batch_size = 1
         shuffle = False
         drop_last = False

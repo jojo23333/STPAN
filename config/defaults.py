@@ -134,14 +134,13 @@ _C.SOLVER.DCT_MASK_STEPS = [10, 30]
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
 
-_C.DATA.NUM_FRAMES = 5
+_C.DATA.SP_PATCH_SIZE = 256
 
 # The path to the data directory.
 _C.DATA.PATH_TO_TRAINING_SET = "/Disk2/limuchen/NTIRE2020/train"
 
 _C.DATA.PATH_TO_TEST_SET = "/Disk2/limuchen/NTIRE2020/val"
 
-#
 _C.DATA.DATA_SHAPE = (3, 1920, 1080)
 
 # -----------------------------------------------------------------------------
@@ -170,22 +169,30 @@ _C.UNET.USE_GLOBAL_FUSION = True
 
 _C.UNET.NUM_FUSION_NL_GROUPS = 4
 
+# ---------------------------------------------------------------------------- #
+# DENOISE options
+# ---------------------------------------------------------------------------- #
+
+_C.DENOISE = CN()
+
+_C.DENOISE.NOISE_TYPE = "read_and_shot"
+
+_C.DENOISE.SIGMA = 25
+
+# Num of input frame for video denoise
+_C.DENOISE.NUM_FRAMES = 5
 
 # ---------------------------------------------------------------------------- #
-# EDVR options
+# STPAN options
 # ---------------------------------------------------------------------------- #
 
-_C.EDVR = CN()
+_C.STPAN = CN()
 
-_C.EDVR.NF = 64
+_C.STPAN.KERNEL_K = 3
 
-_C.EDVR.BACK_RBS = 10
+_C.STPAN.KERNEL_T = 3
 
-_C.EDVR.PREDEBLUR = False
-
-_C.EDVR.USE_GLOBAL_FUSION = True
-
-_C.EDVR.USE_CARAFE = False
+_C.STPAN.COLOR_CH = 1
 
 # ---------------------------------------------------------------------------- #
 # Misc options

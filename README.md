@@ -1,17 +1,24 @@
-This is a incomplete pytorch implementation, please see tf branch for original implementation and models.
+# STPAN: Learning spatial and spatio-temporal pixel aggregations for image and video denoising
+This is a official implementation of the paper *Learning spatial and spatio-temporal pixel aggregations for image and video denoising*. 
+The pytorch implementation is still under preparation and will be released soon. Please see tf branch for original implementation and models.
+
+## TODOs
+- [x] Release SPAN and PAN Models
+- [] Release Test and Training Scripts
+- [] Release Datasets
+- [] Release Video Denoise models
+- [] Release Image Denoise models
+- [] 
 
 ## installation
 For environment setting up:
 ```
 pip install -r requirement.txt
-cd ./models/arch/dcn
-python setup.py develop
-cd ./models/arch/carafe
-python setup.py develop
 ```
 
-# Dataset Preparation
-For testing data: please arange the test frames as the following format:
+## Dataset Preparation
+
+<!-- For testing data: please arange the test frames as the following format:
 
 -path_to_training_set
     -source
@@ -21,7 +28,7 @@ For testing data: please arange the test frames as the following format:
             -vid1_002.png
             ...
         -vid2
-        ...
+        ... -->
 
 ## Testing
 In the yaml config file:

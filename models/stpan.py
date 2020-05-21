@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.arch.pan import rebase_flow_3d
-from models.arch.pan import spatial_temporal_sampler
+from models.arch.samplers import rebase_flow_3d
+from models.arch.samplers import spatial_temporal_sampler
 from utils.image import sRGBforward
 
 def unet_subset(ch, N, D=3, norm_type="none"):
@@ -91,7 +91,7 @@ class STPAN(nn.Module):
         super(ST_PAN, self).__init__()
         KERNEL_K = cfg.STPAN.KERNEL_K
         KERNEL_T = cfg.STPAN.KERNEL_T
-        FRAME_SIZE = cfg.STPAN.FRAME_SIZE
+        FRAME_SIZE = cfg.DENOISE.NUM_FRAMES
         COLOR_CH = cfg.STPAN.COLOR_CH
         self.kernel_k = KERNEL_K
         self.kernel_t = KERNEL_T
@@ -130,9 +130,22 @@ class STPAN(nn.Module):
         else:
             srgb_transfer_func = lambda x: x
 
-    def forward(self, inputs, gt, gs):
-        B, T, C, H, W = inputs.size()
-        fea = self.conv_first_1(inputs.view(B, -1, H, W))
+    def forward(self, inputs_dict, gs):
+        input_frames = inputs_dict["inputs"]
+        gt = inputs_dict["gt"]
+        noise_level = inputs_dict["noise_level"]
+        B, T, C, H, W = input_frames.size()
+
+        if self.noise_type == 'gaussian':
+            inputs = input_frames.view(B, -1, H, W)
+        elif self.noise_type == 'read_and_shot':
+            sig_read, sig_shot = noise_level
+            sig_read = torch.FloatTensor(sig_read).view(B, 1, 1, 1)
+            sig_shot = torch.FloatTensor(sig_shot).view(B, 1, 1, 1)
+            noise_level = torch.sqrt(sig_read ** 2 + sig_shot ** 2 * noisy_frames[:, self.frame_size // 2, ...])
+            inputs = torch.stack([input_frames.view(B, -1, H, W), noise_level], dim=1)
+
+        fea = self.conv_first_1(inputs)
         fea = self.unet_subset(fea)
 
         flow_weights_fea = fea[:, :128, ...]
@@ -163,7 +176,7 @@ class STPAN(nn.Module):
             losses = {"mse_loss": mse, "annealing_loss": annealing_loss * annealing_rate}
             
             psnr =  20 * torch.log10(1. / torch.sqrt(mse))
-            base_mse = torch.mean((srgb_transfer_func(inputs[:, self.frame_size // 2, ...]) - gt) ** 2)
+            base_mse = torch.mean((srgb_transfer_func(input_frames[:, self.frame_size // 2, ...]) - gt) ** 2)
             base_psnr = 20 * torch.log10(1. / torch.sqrt(base_mse))
             training_info = {'annealing rate': annealing_rate, 'psnr': psnr, 'base psnr': base_psnr}
 

@@ -57,11 +57,14 @@ def train_epoch(train_loader, model, optimizer, train_meter, cur_epoch, cur_gs, 
         if isinstance(inputs, (list,)):
             for i in range(len(inputs)):
                 inputs[i] = inputs[i].cuda(non_blocking=True)
+        elif isinstance(inputs, dict):
+            for k, v in inputs.items():
+                inputs[k] = v.cuda(non_blocking=True)
         else:
             inputs = inputs.cuda(non_blocking=True)
 
         gt = gt.cuda()
-        losses, training_infos = model(inputs, gt, gs)
+        losses, training_infos = model(inputs, gs)
 
         # check Nan Loss.
         misc.check_nan_losses(loss)
@@ -113,6 +116,9 @@ def validation_epoch(val_loader, model, val_meter, cur_epoch, cfg):
         if isinstance(inputs, (list,)):
             for i in range(len(inputs)):
                 inputs[i] = inputs[i].cuda(non_blocking=True)
+        elif isinstance(inputs, dict):
+            for k, v in inputs.items():
+                inputs[k] = v.cuda(non_blocking=True)
         else:
             inputs = inputs.cuda(non_blocking=True)
         print(inputs.shape, flush=True)
@@ -161,11 +167,6 @@ def validation_epoch_center(val_loader, model, val_meter, cur_epoch, cfg):
     """
     model.eval()
     logger.info("Start validation")
-
-    if 'dct' in cfg.MODEL.ARCH and cfg.SOLVER.USE_DCT_MASK:
-        freq_mask = get_dct_mask_at_validation_epoch(cfg, cur_epoch).cuda()
-    else:
-        freq_mask = None
 
     # batch_size is fixed to 1 on each GPU
     for inputs, gt, frame_ids in val_loader:
