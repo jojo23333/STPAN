@@ -47,4 +47,10 @@ If you find this repo helpful in your research, please cite our paper.
   journal={IEEE Transactions on Image Processing},
   year={2020}
 }
+@article{dcn_denoise,
+  title={Learning deformable kernels for image and video denoising},
+  author={Xu, Xiangyu and Li, Muchen and Sun, Wenxiu},
+  journal={arXiv preprint arXiv:1904.06903},
+  year={2019}
+}
 ```
