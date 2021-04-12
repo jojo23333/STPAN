@@ -2,9 +2,9 @@
 This is a official implementation of the paper *Learning spatial and spatio-temporal pixel aggregations for image and video denoising*. 
 The pytorch implementation is still under preparation and will be released soon. 
 
-**Please see tf branch for original implementation and models.**
+**Please see [tf branch](https://github.com/jojo23333/STPAN/tree/tf) for original implementation and models.**
 
-**Thanks to z-bingo for implementing our method in https://github.com/z-bingo/Deformable-Kernels-For-Video-Denoising.git**
+**Thanks to z-bingo for re-implementing our method in https://github.com/z-bingo/Deformable-Kernels-For-Video-Denoising.git**
 
 ## TODOs
 - [x] Release SPAN and PAN code
