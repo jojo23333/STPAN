@@ -1,5 +1,8 @@
 # STPAN: Learning spatial and spatio-temporal pixel aggregations for image and video denoising
-This is a official implementation of the paper *Learning spatial and spatio-temporal pixel aggregations for image and video denoising*. 
+This is a official implementation of the paper [Learning Spatial and Spatio-Temporal Pixel Aggregations for Image and Video Denoising](https://arxiv.org/abs/2101.10760), TIP 2020.
+
+An earlier arXiv paper: [Learning Deformable Kernels for Image and Video Denoising](https://arxiv.org/abs/1904.06903), 2019.
+
 The pytorch implementation is still under preparation and will be released soon. 
 
 **Please see [tf branch](https://github.com/jojo23333/STPAN/tree/tf) for original implementation and models.**
